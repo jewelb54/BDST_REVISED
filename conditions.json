@@ -1,0 +1,203 @@
+
+{
+    "resource_type": "Condition",
+    "identifier": {
+        "use": "string",
+        "system": "string",
+        "value": "string",
+        "period": "Period(start=datetime.datetime(2023, 3, 24, 9, 12, 40, 718000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 9, 12, 40, 718000, tzinfo=datetime.timezone.utc))",
+        "assigner": "string"
+    },
+    "clinicalStatus": {
+        "clinical_status": "string"
+    },
+    "verificationstatus": {
+        "verification_status": "string"
+    },
+    "category": {
+        "coding": "string",
+        "text": "string"
+    },
+    "severity": {
+        "severity": "Acute"
+    },
+    "code": {
+        "coding": "U000685",
+        "text": "string"
+    },
+    "bodysite": {
+        "coding": "string",
+        "text": "string"
+    },
+    "subject": 101,
+    "encounter": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "period": "Period(start=datetime.datetime(2023, 3, 24, 9, 12, 40, 718000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 9, 12, 40, 718000, tzinfo=datetime.timezone.utc))",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "onsetdatetime": {
+        "onsetDateTime": "2023-03-24 09:12:40.718000+00:00"
+    },
+    "onsetage": {
+        "onsetage": "2023-03-24 09:12:40.718000+00:00"
+    },
+    "onsetperiod": {
+        "onsetperiod": "2023-03-24 09:12:40.718000+00:00"
+    },
+    "onsetrange": {
+        "onsetrange": "string"
+    },
+    "recordeddate": {
+        "recordeddate": "2023-03-24 09:12:40.718000+00:00"
+    },
+    "recorder": "string",
+    "101": {
+        "resource_type": "Condition",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+            "assigner": "string"
+        },
+        "clinicalStatus": {
+            "clinical_status": "string"
+        },
+        "verificationstatus": {
+            "verification_status": "string"
+        },
+        "category": {
+            "coding": "string",
+            "text": "string"
+        },
+        "severity": {
+            "severity": "ACUTE"
+        },
+        "code": {
+            "coding": "string",
+            "text": "string"
+        },
+        "bodysite": {
+            "coding": "string",
+            "text": "string"
+        },
+        "subject": {
+            "reference": "string",
+            "type": "string",
+            "identifier": {
+                "use": "string",
+                "system": "string",
+                "value": "string",
+                "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+                "assigner": "string"
+            },
+            "display": "string"
+        },
+        "encounter": {
+            "reference": "string",
+            "type": "string",
+            "identifier": {
+                "use": "string",
+                "system": "string",
+                "value": "string",
+                "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+                "assigner": "string"
+            },
+            "display": "string"
+        },
+        "onsetdatetime": {
+            "onsetDateTime": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetage": {
+            "onsetage": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetperiod": {
+            "onsetperiod": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetrange": {
+            "onsetrange": "string"
+        },
+        "recordeddate": {
+            "recordeddate": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "recorder": "string"
+    },
+    "101": {
+        "resource_type": "Condition",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+            "assigner": "string"
+        },
+        "clinicalStatus": {
+            "clinical_status": "string"
+        },
+        "verificationstatus": {
+            "verification_status": "string"
+        },
+        "category": {
+            "coding": "string",
+            "text": "string"
+        },
+        "severity": {
+            "severity": "ACUTE"
+        },
+        "code": {
+            "coding": "string",
+            "text": "string"
+        },
+        "bodysite": {
+            "coding": "string",
+            "text": "string"
+        },
+        "subject": {
+            "reference": "string",
+            "type": "string",
+            "identifier": {
+                "use": "string",
+                "system": "string",
+                "value": "string",
+                "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+                "assigner": "string"
+            },
+            "display": "string"
+        },
+        "encounter": {
+            "reference": "string",
+            "type": "string",
+            "identifier": {
+                "use": "string",
+                "system": "string",
+                "value": "string",
+                "period": "Period(start=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 24, 14, 16, 29, 775000, tzinfo=datetime.timezone.utc))",
+                "assigner": "string"
+            },
+            "display": "string"
+        },
+        "onsetdatetime": {
+            "onsetDateTime": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetage": {
+            "onsetage": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetperiod": {
+            "onsetperiod": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "onsetrange": {
+            "onsetrange": "string"
+        },
+        "recordeddate": {
+            "recordeddate": "2023-03-24 14:16:29.775000+00:00"
+        },
+        "recorder": "string"
+    }
+}

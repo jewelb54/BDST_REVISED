@@ -1,0 +1,256 @@
+
+{
+    "identifier": {
+        "use": "string",
+        "system": "string",
+        "value": "string",
+        "assigner": "string"
+    },
+    "basedon": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "partOf": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "status": {
+        "coding": "string",
+        "text": "string"
+    },
+    "category": {
+        "coding": "string",
+        "text": "string"
+    },
+    "code": {
+        "coding": null,
+        "text": "Glucose:MCNC:PT:Urine:QN:Teststrip"
+    },
+    "Subject": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "focus": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "encounter": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "effective": {
+        "effectiveDateTime": "2023-03-16 13:36:38.620000+00:00",
+        "effectivePeriod": "Period(start=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc))",
+        "effectiveTiming": "2023-03-16 13:36:38.620000+00:00",
+        "effectiveInstant": "2023-03-16 13:36:38.620000+00:00"
+    },
+    "issued": "2023-03-16 13:36:38.620000+00:00",
+    "performer": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "value": {
+        "valueQuantity": 0,
+        "valueCodeableConcept": {
+            "coding": "string",
+            "text": "string"
+        },
+        "valueString": "string",
+        "valueBoolean": true,
+        "valueInteger": 0,
+        "valueRange": 0,
+        "valueRatio": 0,
+        "valueSampledData": {
+            "origin": "string",
+            "period": "Period(start=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc))",
+            "factor": 0,
+            "lowerLimit": 0,
+            "uppperLimit": 0,
+            "dimensions": 0,
+            "data": "string"
+        },
+        "valueTime": "2023-03-16 13:36:38.620000+00:00",
+        "valueDateTime": "2023-03-16 13:36:38.620000+00:00",
+        "valuPeriod": "Period(start=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc))"
+    },
+    "dataAbsentReason": {
+        "coding": "string",
+        "text": "string"
+    },
+    "interpretation": {
+        "coding": "string",
+        "text": "string"
+    },
+    "note": {
+        "author": {
+            "code": "string",
+            "family": "string",
+            "given": "string",
+            "prefix": "string",
+            "suffix": "string"
+        },
+        "time": "2023-03-16 13:36:38.620000+00:00",
+        "text": "string"
+    },
+    "bodySite": {
+        "coding": "string",
+        "text": "string"
+    },
+    "method": {
+        "coding": "string",
+        "text": "string"
+    },
+    "specimen": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "device": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "referenceRange": {
+        "low": 0,
+        "high": 0,
+        "type": {
+            "coding": "string",
+            "text": "string"
+        },
+        "appliesTo": {
+            "coding": "string",
+            "text": "string"
+        },
+        "age": 0,
+        "text": "string"
+    },
+    "hasMember": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "derivedFrom": {
+        "reference": "string",
+        "type": "string",
+        "identifier": {
+            "use": "string",
+            "system": "string",
+            "value": "string",
+            "assigner": "string"
+        },
+        "display": "string"
+    },
+    "component": {
+        "code": {
+            "coding": "string",
+            "text": "string"
+        },
+        "value": {
+            "valueQuantity": 0,
+            "valueCodeableConcept": {
+                "coding": "string",
+                "text": "string"
+            },
+            "valueString": "string",
+            "valueBoolean": true,
+            "valueInteger": 0,
+            "valueRange": 0,
+            "valueRatio": 0,
+            "valueSampledData": {
+                "origin": "string",
+                "period": "Period(start=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc))",
+                "factor": 0,
+                "lowerLimit": 0,
+                "uppperLimit": 0,
+                "dimensions": 0,
+                "data": "string"
+            },
+            "valueTime": "2023-03-16 13:36:38.620000+00:00",
+            "valueDateTime": "2023-03-16 13:36:38.620000+00:00",
+            "valuPeriod": "Period(start=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc), end=datetime.datetime(2023, 3, 16, 13, 36, 38, 620000, tzinfo=datetime.timezone.utc))"
+        },
+        "dataAbsentRange": {
+            "coding": "string",
+            "text": "string"
+        },
+        "iterpretation": {
+            "coding": "string",
+            "text": "string"
+        },
+        "referenceRange": {
+            "low": 0,
+            "high": 0,
+            "type": {
+                "coding": "string",
+                "text": "string"
+            },
+            "appliesTo": {
+                "coding": "string",
+                "text": "string"
+            },
+            "age": 0,
+            "text": "string"
+        }
+    },
+    "subject": 110
+}
