@@ -1,0 +1,47 @@
+
+{
+    "resourceType": "Encounter",
+    "id": "12345",
+    "status": "in-progress",
+    "class": {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+        "code": "AMB"
+    },
+    "subject": {
+        "reference": "Patient/example"
+    },
+    "period": {
+        "start": "2022-01-01T08:00:00Z",
+        "end": "2022-01-01T08:30:00Z"
+    },
+    "reasonCode": [
+        {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "123456789",
+                    "display": "Acute bronchitis (disorder)"
+                }
+            ]
+        }
+    ],
+    "diagnosis": [
+        {
+            "condition": {
+                "reference": "Condition/abc123"
+            }
+        }
+    ],
+    "location": [
+        {
+            "location": {
+                "reference": "Location/xyz789"
+            },
+            "status": "active",
+            "period": {
+                "start": "2022-01-01T08:00:00Z",
+                "end": "2022-01-01T08:15:00Z"
+            }
+        }
+    ]
+}

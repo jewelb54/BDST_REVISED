@@ -1,1 +1,44 @@
-{}
+
+{
+    "id": "example",
+    "status": "active",
+    "intent": "order",
+    "medication": {
+        "text": "Acetaminophen 325mg tablet",
+        "coding": [
+            {
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                "code": "198440",
+                "display": "Acetaminophen 325 MG Oral Tablet"
+            }
+        ]
+    },
+    "subject": "patient123",
+    "dosage": {
+        "text": "Take 1 tablet by mouth every 4 hours as needed",
+        "route": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "26643006",
+                    "display": "Oral route (qualifier value)"
+                }
+            ],
+            "text": "Oral"
+        },
+        "doseQuantity": {
+            "value": 1,
+            "unit": "tablet",
+            "system": "http://unitsofmeasure.org",
+            "code": "tablet"
+        },
+        "timing": {
+            "repeat": {
+                "frequency": 1,
+                "period": 4,
+                "periodUnit": "h"
+            }
+        }
+    }
+}
+

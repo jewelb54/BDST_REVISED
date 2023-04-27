@@ -10,193 +10,346 @@ from pydantic import BaseModel, Field, root_validator
 from pydantic.types import ConstrainedStr
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 from pydantic.errors import MissingError, NoneIsNotAllowedError
-from Classes import *
-from flask import Flask, jsonify, request
+from classes import *
+
 
 app = FastAPI()
 
-class MedicationRequest(BaseModel):
-    medication: str
-    dosage: str
-
 medications = []
 
+encounters = []
+
+api_key = '20d07ba0-6c9c-4a01-b16d-8e409aae6f28'
 base_url = 'https://uts-ws.nlm.nih.gov/rest/'
 
-with open('key.txt', 'r') as file:
-    api_key = file.read().replace('\n', '')
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
+def create_patients_file_if_not_exists():
+    if not os.path.isfile("patients.json"):
+        with open("patients.json", "w") as f:
+            json.dump({}, f, indent=4)
 
-# Creates a patient
-@app.post("/patients/{patient_id}")
-def create_patient(patient: Patient, patient_id: int):
-    # Check if the patient json database already exists
-    if 'patients.json' not in os.listdir():
-        raise HTTPException(status_code=404, detail='Patient not found')
-        patients_JSON = {'{}'}
-        with open('patients.json', 'w') as outfile:
-            json.dump(patients_JSON, outfile)
-    with open("patients.json", 'r+') as infile:
-        patient_db = json.load(infile)
-    patient_db[patient_id] = patient.dict()
+@app.post("/patients")
+def create_patient(patient: Patient):
+    create_patients_file_if_not_exists()
+    patient_id = str(uuid.uuid4())
+    with open("patients.json", "r+") as f:
+        patients = json.load(f)
+        patients[patient_id] = patient.dict()
+        f.seek(0)
+        json.dump(patients, f, indent=4)
+        f.truncate()
+    return {patient_id: patients[patient_id]}
 
-    # Write the JSON object to a file
-    with open("patients.json", "w", encoding='utf-8') as outfile:
-        outfile.write('\n')
-        json.dump(patient_db, outfile, ensure_ascii=False, indent=4, default=str)
+@app.put("/patients/{patient_id}")
+def update_patient(patient: Patient, patient_id: str):
+    create_patients_file_if_not_exists()
+    with open("patients.json", "r+") as f:
+        patients = json.load(f)
+        if patient_id not in patients:
+            raise HTTPException(status_code=404, detail="Patient not found")
+        patients[patient_id] = patient.dict()
+        f.seek(0)
+        json.dump(patients, f, indent=4)
+        f.truncate()
+    return patients[patient_id]
 
-
-# Update a patient instance
-@app.put("/patients/{identifier}")
-def update_patient(identifier: str, patient: Patient):
-    with open("patients.json", "r+") as infile:
-        patient_db = json.load(infile)
-        if identifier not in patient_db:
-            return "Patient not found"
-        patient_db[identifier] = patient.dict()
-    with open("patients.json", "w") as outfile:
-        outfile.write('\n')
-        json.dump(patient_db, outfile, indent=4, default=str)
-
-
-# Retrieve a patient instance
 @app.get("/patients")
-def read_patient(patient_id: int = None):
-    with open("patients.json", "r+") as infile:
-        patient_db = json.load(infile)
+def read_patients(patient_id: str = None):
+    create_patients_file_if_not_exists()
+    with open("patients.json", "r") as f:
+        patients = json.load(f)
         if patient_id is not None:
-            return patient_db
+            if patient_id not in patients.keys():
+                print(f"Patient ID {patient_id} not found in patients file")
+                raise HTTPException(status_code=404, detail="Patient not found")
+            else:
+                print(f"Patient ID {patient_id} found in patients file")
+                return patients[patient_id]
+        else:
+            print("No patient ID specified, returning all patients")
+            return patients
 
-
-# Make a function that makes a GET request to UMLS for the ui code associated with a diagnosis.
-def ICD10_Code(diagnosis: str):
+def search_icd10cm_code(diagnosis: str):
     endpoint = 'search/current'
     query_param = f'?string={diagnosis}&sab=ICD10CM&returnIdType=code&apiKey={api_key}'
     response = requests.get(base_url + endpoint + query_param)
-    result = response.json()['result']['results']
-    return result[0]['ui']
+    results = response.json().get('result', {}).get('results', [])
+    return results[0]['ui'] if results else None
 
 
-# Make a POST function that updates the conditions.json file with the ui code of the patient's condition.
 @app.post("/condition/{patient_id}")
-def Create_Conditon(patient_id: int, condition: Condition):
-    with open('conditions.json', 'r') as infile:
-        condition_data = json.load(infile)
-    # Make an object that inherits from the Condition class in Classes.py
+def create_condition(patient_id: str, condition: Condition):
+    with open('conditions.json', 'r+') as infile:
+        conditions = json.load(infile)
+
     condition_data = condition.dict()
-    # Assign the subject attribute the value of the given patient id
     condition_data['subject'] = patient_id
-    # Make a diagnosis object that obtains from the condition text section
+
     diagnosis = condition_data['code']['text']
-    # Make an object that uses the ICD10_Code funtion defined above to populate the text section of the condition
-    get_ICD10_Code = ICD10_Code(diagnosis)
-    # Now populate the condition_data object with the correct ICD10 code!
-    condition_data['code']['coding'] = get_ICD10_Code
-    # Now dump to the conditions.json!!!
+    icd10_code = search_icd10cm_code(diagnosis)
+    condition_data['code']['coding'][0]['code'] = icd10_code
+
+    conditions.append(condition_data)
+
     with open("conditions.json", "w") as outfile:
-        outfile.write('\n')
-        json.dump(condition_data, outfile, indent=4, default=str)
+        json.dump(conditions, outfile, indent=4)
+
+    return condition_data
 
 
-# Creating a PUT endpoint to update the Condition file
 @app.put("/condition/{patient_id}/{condition_id}")
-def update_condition(patient_id: int, condition_id: str, condition: Condition):
+def update_condition(patient_id: str, condition_id: str, condition: Condition):
     with open("conditions.json", 'r+') as infile:
-        condition_db = json.load(infile)
-    condition_db[patient_id] = condition.dict()
-    condition_db['subject'] = patient_id
-    diagnosis = condition_db['code']['text']
-    get_ICD10_Code = ICD10_Code(diagnosis)
-    condition_db['code']['coding']
-    with open("conditions.json", "w") as outfile:
-        outfile.write('\n')
-        json.dump(condition_db, outfile, indent=4, default=str)
+        conditions = json.load(infile)
 
+    for idx, cond in enumerate(conditions):
+        if cond['id'] == condition_id and cond['subject'] == patient_id:
+            condition_data = condition.dict()
+            condition_data['subject'] = patient_id
 
-# Make a function that retrieves the LOINC code from UMLS
-def LOINC_CODE(labValue: str):
-    endpoint = 'content/current'
-    query_param = f'/source/LNC/{labValue}?apiKey={api_key}'
-    response = requests.get(base_url + endpoint + query_param)
-    if response.status_code != 200:
+            diagnosis = condition_data['code']['text']
+            icd10_code = search_icd10cm_code(diagnosis)
+            condition_data['code']['coding'][0]['code'] = icd10_code
+
+            conditions[idx] = condition_data
+
+            with open("conditions.json", "w") as outfile:
+                json.dump(conditions, outfile, indent=4)
+
+            return condition_data
+
+    raise HTTPException(status_code=404, detail="Condition not found")
+
+@app.get("/condition/{patient_id}/{condition_id}")
+def get_condition(patient_id: str, condition_id: str):
+    with open("conditions.json", "r") as infile:
+        conditions = json.load(infile)
+
+    for condition in conditions:
+        if condition["id"] == condition_id and condition["subject"] == patient_id:
+            return condition
+
+    raise HTTPException(status_code=404, detail="Condition not found")
+
+# Replace the base_url with the correct UMLS base URL
+umls_base_url = 'https://uts-ws.nlm.nih.gov/rest/'
+
+# Function to get LOINC information (name and code) from UMLS
+def get_loinc_info(lab_value: str):
+    endpoint = 'search/current'
+    query_param = f'?string={lab_value}&sab=LOINC&returnIdType=code&apiKey={api_key}'
+    response = requests.get(umls_base_url + endpoint + query_param)
+    results = response.json().get('result', {}).get('results', [])
+    if not results:
         return None
-    result = response.json()['result']['name']
-    return result
+    return {"name": results[0]['name'], "code": results[0]['ui']}
 
-
-# Creating a POST endpoint to lead to an Observation file
+# Creating a POST endpoint to create an Observation
 @app.post("/observation/{patient_id}")
-def Create_Observation(patient_id: int, observation: Observation):
-    with open('observations.json', 'r') as infile:
-        observation_data = json.load(infile)
+def create_observation(patient_id: str, observation: Observation):
+    with open('observations.json', 'r+') as infile:
+        observations = json.load(infile)
+
     observation_data = observation.dict()
     observation_data['subject'] = patient_id
-    labValue = observation_data['code']['text']
-    get_LabValue = LOINC_CODE(labValue)
-    observation_data['code']['coding'] = get_LabValue
-    with open("observations.json", "w") as outfile:
-        outfile.write('\n')
-        json.dump(observation_data, outfile, indent=4, default=str)
 
-#Creating a PUT endpoint to update the Observation file
+    lab_value = observation_data['code']['text']
+    loinc_info = get_loinc_info(lab_value)
+    if loinc_info:
+        observation_data['code']['coding'][0]['code'] = loinc_info['code']
+        observation_data['code']['coding'][0]['display'] = loinc_info['name']
+    else:
+        raise HTTPException(status_code=400, detail="LOINC code not found")
+
+    observations.append(observation_data)
+
+    with open("observations.json", "w") as outfile:
+        json.dump(observations, outfile, indent=4, default=str)
+
+    return observation_data
+
+# Modify the PUT endpoint to update the Observation
 @app.put("/observation/{patient_id}/{observation_id}")
-def create_observation(patient_id: int, observation_id: str, observation: Observation):
+def update_observation(patient_id: str, observation_id: str, observation: Observation):
     with open("observations.json", 'r+') as infile:
-        observation_db = json.load(infile)
-    observation_db[patient_id] = observation.dict()
-    observation_db['subject'] = patient_id
-    labValue = observation_db['code']['text']
-    get_LabValue = LOINC_CODE(labValue)
-    observation_db['code']['coding']
-    with open("observations.json", "w") as outfile:
-        outfile.write('\n')
-        json.dump(observation_db, outfile, indent=4, default=str)
+        observations = json.load(infile)
 
-#Creating a GET endpoint to read the Observation file
-@app.get("/observations/{patient_id}")
-def read_observation(patient_id: int):
+    for idx, obs in enumerate(observations):
+        if obs['id'] == observation_id and obs['subject'] == patient_id:
+            observation_data = observation.dict()
+            observation_data['subject'] = patient_id
+
+            lab_value = observation_data['code']['text']
+            loinc_info = get_loinc_info(lab_value)
+            if loinc_info:
+                observation_data['code']['coding'][0]['code'] = loinc_info['code']
+                observation_data['code']['coding'][0]['display'] = loinc_info['name']
+            else:
+                raise HTTPException(status_code=400, detail="LOINC code not found")
+
+            observations[idx] = observation_data
+
+            with open("observations.json", "w") as outfile:
+                json.dump(observations, outfile, indent=4, default=str)
+
+            return observation_data
+
+    raise HTTPException(status_code=404, detail="Observation not found")
+
+
+@app.get("/observations/{patient_id}/{loinc_code}")
+def read_observation_by_patient_id_and_loinc_code(patient_id: int, loinc_code: str):
     with open("observations.json", "r+") as infile:
-        observation_db = json.load(infile)
-        if patient_id is not None:
-            return observation_db
+        observations = json.load(infile)
 
-#Creating a POST endpoint to lead to medications file
-@app.post("/medications/{patient_id}/{rxnorm_code}")
-def create_medication_request(patient_id: int, rxnorm_code: str, medication_request: MedicationRequest):
-    medication_request_dict = medication_request.dict()
-    medication_request_dict['subject'] = patient_id
-    medication_request_dict['medication'] = {
-        "reference": f"https://rxnav.nlm.nih.gov/REST/rxcui/{rxnorm_code}/properties.json",
-        "display": f"https://rxnav.nlm.nih.gov/REST/rxcui/{rxnorm_code}/properties.json"
-    }
-    medications.append(medication_request_dict)
-    return medication_request_dict
+    filtered_observations = [obs for obs in observations if obs['subject'] == patient_id and obs['code']['coding'][0]['code'] == loinc_code]
 
-# Creating a PUT endpoint to update the medications file
-@app.put("/medications/{patient_id}/{medication_id}")
-def update_medication_request(patient_id: int, medication_id: str, updated_medication_request: MedicationRequest):
-    with open("medications.json", 'r') as infile:
-        medication_db = json.load(infile)
-    if str(patient_id) not in medication_db:
-        raise HTTPException(status_code=404, detail='Patient not found')
-    found_medication = None
-    for medication in medication_db[str(patient_id)]:
-        if medication['id'] == medication_id:
-            found_medication = medication
+    if filtered_observations:
+        return filtered_observations
+    else:
+        raise HTTPException(status_code=404, detail="Observation not found")
+
+# Function to get RxNORM information (name and code) from UMLS
+def get_rxnorm_info(rxnorm_code: str):
+    endpoint = f'content/current/CUI/{rxnorm_code}'
+    query_param = f'?apiKey={api_key}'
+    response = requests.get(umls_base_url + endpoint + query_param)
+    result = response.json().get('result', {})
+    return {"name": result['str'], "code": result['ui']}
+
+# Creating a POST endpoint to create a medication request
+@app.post("/medication-request/{patient_id}/{rxnorm_code}")
+def create_medication_request(patient_id: str, rxnorm_code: str, medication_request: MedicationRequest):
+    with open('medications.json', 'r+') as infile:
+        medications = json.load(infile)
+
+    medication_request_data = medication_request.dict()
+    medication_request_data['subject'] = patient_id
+
+    rxnorm_info = get_rxnorm_info(rxnorm_code)
+    if rxnorm_info:
+        medication_request_data['medication']['coding'][0]['code'] = rxnorm_info['code']
+        medication_request_data['medication']['coding'][0]['display'] = rxnorm_info['name']
+    else:
+        raise HTTPException(status_code=400, detail="RxNorm code not found")
+
+    medications.append(medication_request_data)
+
+    with open("medications.json", "w") as outfile:
+        json.dump(medications, outfile, indent=4, default=str)
+
+    return medication_request_data
+
+# Creating a PUT endpoint to update the medication request
+@app.put("/medication-request/{patient_id}/{medication_request_id}")
+def update_medication_request(patient_id: str, medication_request_id: str, updated_medication_request: MedicationRequest):
+    with open("medications.json", 'r+') as infile:
+        medications = json.load(infile)
+
+    found_medication_request = None
+    for idx, medication_request in enumerate(medications):
+        if medication_request['id'] == medication_request_id and medication_request['subject'] == patient_id:
+            found_medication_request = medication_request
             break
-    if not found_medication:
-        raise HTTPException(status_code=404, detail='Medication not found')
-    found_medication.update(updated_medication_request.dict())
-    with open("medications.json", "w", encoding='utf-8') as outfile:
-        json.dump(medication_db, outfile, ensure_ascii=False, indent=4, default=str)
-    return {"message": f"Medication with ID {medication_id} for patient with ID {patient_id} has been updated."}
 
-# GET endpoint that retrieves medications requests by RxNORM and patient ID
-@app.get("/medications/{patient_id}/{rxnorm_code}")
-def get_medication_requests(patient_id: int, rxnorm_code: str):
+    if not found_medication_request:
+        raise HTTPException(status_code=404, detail='Medication request not found')
+
+    updated_medication_request_data = updated_medication_request.dict()
+    updated_medication_request_data['subject'] = patient_id
+
+    rxnorm_info = get_rxnorm_info(updated_medication_request_data['medication']['coding'][0]['code'])
+    if rxnorm_info:
+        updated_medication_request_data['medication']['coding'][0]['display'] = rxnorm_info['name']
+    else:
+        raise HTTPException(status_code=400, detail="RxNorm code not found")
+
+    medications[idx] = updated_medication_request_data
+
+    with open("medications.json", "w") as outfile:
+        json.dump(medications, outfile, indent=4, default=str)
+
+    return updated_medication_request_data
+
+# GET endpoint that retrieves medication requests by RxNorm code and patient ID
+@app.get("/medication-requests/{patient_id}/{rxnorm_code}")
+def get_medication_requests(patient_id: str, rxnorm_code: str):
+    with open("medications.json", "r") as infile:
+        medications = json.load(infile)
+
     medication_requests = []
-    for medication in medications:
-        if medication['subject'] == patient_id and medication['medication']['reference'].split('/')[-2] == rxnorm_code:
-            medication_requests.append(medication)
+    for medication_request in medications:
+        if medication_request['subject'] == patient_id and medication_request['medication']['coding'][0]['code'] == rxnorm_code:
+            medication_requests.append(medication_request)
+
     return medication_requests
 
+#Implementing encounter resources:
+def validate_condition_ids(condition_ids: List[str]):
+    with open('conditions.json', 'r') as infile:
+        conditions = json.load(infile)
+    return all(condition_id in [condition['id'] for condition in conditions] for condition_id in condition_ids)
+
+def validate_observation_ids(observation_ids: List[str]):
+    with open('observations.json', 'r') as infile:
+        observations = json.load(infile)
+    return all(observation_id in [observation['id'] for observation in observations] for observation_id in observation_ids)
+
+def validate_medication_request_ids(medication_request_ids: List[str]):
+    with open('medications.json', 'r') as infile:
+        medication_requests = json.load(infile)
+    return all(medication_request_id in [medication_request['id'] for medication_request in medication_requests] for medication_request_id in medication_request_ids)
+
+def create_encounters_file_if_not_exists():
+    if not os.path.exists("encounters.json"):
+        with open("encounters.json", "w") as f:
+            f.write("[]")
+
+@app.post("/encounter")
+def create_encounter(patient_id: str, encounter_data: dict):
+    # Perform validation checks
+    if not validate_patient_id(patient_id):
+        raise HTTPException(status_code=404, detail="Patient not found")
+    if not validate_condition_ids(encounter_data.get("condition_ids", [])):
+        raise HTTPException(status_code=404, detail="Condition not found")
+    if not validate_observation_ids(encounter_data.get("observation_ids", [])):
+        raise HTTPException(status_code=404, detail="Observation not found")
+    if not validate_medication_request_ids(encounter_data.get("medication_request_ids", [])):
+        raise HTTPException(status_code=404, detail="Medication request not found")
+
+    create_encounters_file_if_not_exists()
+
+    encounter_data["id"] = str(uuid.uuid4())
+    encounter_data["patient_id"] = patient_id
+
+    with open("encounters.json", "r") as file:
+        encounters = json.load(file)
+
+    encounters.append(encounter_data)
+
+    with open("encounters.json", "w") as file:
+        json.dump(encounters, file, indent=4)
+
+    return encounter_data
+
+@app.get("/encounters")
+def read_encounters(encounter_id: str = None):
+    if encounter_id is not None:
+        for encounter in encounters:
+            if encounter["id"] == encounter_id:
+                return encounter
+        raise HTTPException(status_code=404, detail="Encounter not found")
+    return {"encounters": encounters}
+
+@app.put("/encounter/{encounter_id}")
+def update_encounter(encounter_id: str, updated_encounter: Encounter):
+    for idx, encounter in enumerate(encounters):
+        if encounter['id'] == encounter_id:
+            updated_encounter_data = updated_encounter.dict()
+            updated_encounter_data['id'] = encounter_id
+            encounters[idx] = updated_encounter_data
+            return {"message": f"Encounter with ID {encounter_id} has been updated."}
+    raise HTTPException(status_code=404, detail="Encountera not found")
